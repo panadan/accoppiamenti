@@ -50,7 +50,7 @@ public class Problema {
 		
 		
 		//vergaInMacchina = a.getVerga().clone();
-		sfridoPadre =p.getSfridoPadre() + a.getSfido();
+		sfridoPadre =p.getSfridoPadre() + a.getSfrido();
 		cambiVerga = p.getCambiVerga();
 		barcodeXInMacchina = null;
 		barcodeYInMacchina = null;

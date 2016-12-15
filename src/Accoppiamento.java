@@ -74,7 +74,7 @@ public class Accoppiamento {
 		return sfridoSingolo;
 	}
 	
-	public float getSfido(){
+	public float getSfrido(){
 		return sfridoSingolo * vergheIntere;
 	}
 	

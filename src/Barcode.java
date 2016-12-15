@@ -36,11 +36,19 @@ public class Barcode implements Cloneable{
 		
 	}
 
+	
+	public String toString2() {
+		/*return "Barcode [nome=" + nome + ", qttb=" + qttb + ", qta=" + qta
+				+ "]";*/
+		return nome + "(" + qttb + "*" + qta + ")";
+		
+	}
+
 	@Override
 	public String toString() {
 		/*return "Barcode [nome=" + nome + ", qttb=" + qttb + ", qta=" + qta
 				+ "]";*/
-		return nome + "(" + qttb + "*" + qta + ")";
+		return nome + " x"  + qta;
 		
 	}
 

@@ -14,7 +14,7 @@ public class Risolutore {
 	private Float costoMetro;
 	private Float offsetPinza;
 	private Float offsetTaglio;
-	private double maxSfido;
+	private double maxSfrido;
 	private long startTime;
 	private long endTime;
 	
@@ -60,9 +60,9 @@ public class Risolutore {
 	}
 
 	private void creaLimiteSfrindo(double d) {
-		maxSfido=0;
+		maxSfrido=0;
 		for(Barcode b : p.getBarcodes()){
-			maxSfido+=b.getQta()*b.getQttb()*d;
+			maxSfrido+=b.getQta()*b.getQttb()*d;
 		}
 		
 	}
@@ -85,7 +85,7 @@ public class Risolutore {
 
 		ArrayList<Verga> verghe = new ArrayList<Verga>();
 		for(Verga v : pOrigine.getVerghe())
-			verghe.add(new Verga(v.getLunghezza()-offsetPinza,v.getQta(),v.getCosto()));
+			verghe.add(new Verga(v.getLunghezza().toString(), v.getLunghezza()-offsetPinza,v.getQta(),v.getCosto()));
 		
 		p = new Problema(barcodes,verghe);
 		
@@ -94,7 +94,7 @@ public class Risolutore {
 	
 	private void generaCombinazioni(Problema p){
 		//taglio un po di soluzioni per velocizzare 
-		if(p.getSfridoPadre()>maxSfido) return;
+		if(p.getSfridoPadre()>maxSfrido) return;
 		
 		ArrayList<Barcode> barcodes = p.getBarcodes();
 		ArrayList<Verga> verghe = p.getVerghe();
@@ -224,7 +224,7 @@ public class Risolutore {
 		if (soluzioni.size()>10){
 			Collections.sort(soluzioni);
 			soluzioni.remove(10);
-			maxSfido = soluzioni.get(9).getSfrido();
+			maxSfrido = soluzioni.get(9).getSfrido();
 		}
 	
 			
@@ -252,8 +252,14 @@ public class Risolutore {
 		for(Soluzione s : soluzioni){
 			if (iSol >= numero) break;
 			iSol++;
-			soluzioneText+="   SOLUZIONE " + iSol + " Sfrido: " + s.getSfrido()/1000 + " Mt (costo Metro "+ costoMetro +") Piazzamenti: " + s.getCambiVerga() + " (costo cad: " + costoPaizzamenti + ")";
-			System.out.println("   SOLUZIONE " + iSol + " Sfrido: " + s.getSfrido()/1000 + " Mt (costo Metro "+ costoMetro +") Piazzamenti: " + s.getCambiVerga() + " (costo cad: " + costoPaizzamenti + ")");
+			soluzioneText+="   SOLUZIONE " + iSol + " Sfrido: " + s.getSfrido()/1000 + " Mt (costo Metro "+ costoMetro +")"
+					+ " Piazzamenti: " + s.getCambiVerga() + " (costo cad: " + costoPaizzamenti + ")"
+							+ " Totale Costo: " + s.getCosto() ;
+			
+			System.out.println("   SOLUZIONE " + iSol + " Sfrido: " + s.getSfrido()/1000 + " Mt (costo Metro "+ costoMetro +")"
+					+ " Piazzamenti: " + s.getCambiVerga() + " (costo cad: " + costoPaizzamenti + ")"
+							+ " Totale Costo: " + s.getCosto()) ;
+			
 			soluzioneText+=s;
 			System.out.println(s);
 		}
@@ -261,6 +267,20 @@ public class Risolutore {
 		
 		return soluzioneText;
 		
+	}
+
+	public ArrayList<Soluzione> getSoluzioni() {
+		// TODO Auto-generated method stub
+		return soluzioni;
+	}
+
+	public long getStartTime() {
+		return startTime;
+	}
+
+	public long getEndTime() {
+		// TODO Auto-generated method stub
+		return endTime;
 	}
 
 //	private void stampaDebug(Problema p, Accoppiamento a){

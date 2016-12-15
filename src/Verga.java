@@ -12,6 +12,14 @@ public class Verga implements Cloneable{
 		this.qta = qta;
 		this.costo = costo;
 	}
+
+	public Verga(String nome, Float lunghezza, Integer qta, Float costo) {
+		super();
+		this.nome = nome;
+		this.lunghezza = lunghezza;
+		this.qta = qta;
+		this.costo = costo;
+	}
 	
 	public Verga() {
 		super();
@@ -57,14 +65,20 @@ public class Verga implements Cloneable{
 		return nome;
 	}
 
-	@Override
-	public String toString() {
+	
+	public String toString2() {
 //		return "Verga [lunghezza=" + lunghezza + ", qta=" + qta + ", costo="
 //				+ costo + "]";
 		//tolto il costo adesso non gestito
 		return nome+"(" + lunghezza + "*" + qta + ")" ;
 	}
 
+	@Override
+	public String toString() {
+		return nome  + " x" + qta;
+	}
+
+	
 	@Override
 	protected Verga clone() {
 		return new Verga(nome, lunghezza, qta);

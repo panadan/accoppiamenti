@@ -69,11 +69,15 @@ public class Soluzione implements Comparable{
 				
 			}
 			text += "\n";
-			text += p.toString().toString();
+			text += p.toString();
 			text += "\n";
 		}
 		
 		return text;
+	}
+
+	public ArrayList<Problema> getPassaggi() {
+		return passaggi;
 	}
 	
 	

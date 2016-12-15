@@ -3,6 +3,8 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
+import java.awt.Component;
+
 import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
@@ -13,12 +15,22 @@ import javax.swing.JTable;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.jar.Attributes.Name;
+import javax.swing.JScrollBar;
+import javax.swing.JTabbedPane;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.FlowLayout;
 
 
 public class RisolutorGui {
@@ -31,6 +43,11 @@ public class RisolutorGui {
 	private JTable tblVerghe;
 	private JTable tblBarcodes;
 	private JTextArea textAreaSoluzioni;
+	private JTable tblProblema;
+	private JTable tblAccoppiamento;
+	private JTable tblSoluzioni;
+	private final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+	private Risolutore r;
 
 	/**
 	 * Launch the application.
@@ -65,6 +82,8 @@ public class RisolutorGui {
 		textPresa.setText("32");
 		textTaglio.setText("2");
 		
+		tblAccoppiamento.setModel(new AccoppTableModel());
+		tblProblema.setModel(new ProblemaTableModel());
 	}
 
 	/**
@@ -73,7 +92,7 @@ public class RisolutorGui {
 	private void initialize() {
 		frmRisolutoreTaglio = new JFrame();
 		frmRisolutoreTaglio.setTitle("Risolutore Taglio");
-		frmRisolutoreTaglio.setBounds(100, 100, 700, 492);
+		frmRisolutoreTaglio.setBounds(100, 100, 805, 727);
 		frmRisolutoreTaglio.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JSplitPane splitPane = new JSplitPane();
@@ -82,11 +101,11 @@ public class RisolutorGui {
 		
 		JPanel panel = new JPanel();
 		splitPane.setLeftComponent(panel);
-		panel.setLayout(new MigLayout("", "[grow 50][][pref!][90px:n][pref!][grow 50][grow][][]", "[][][grow][][][100px:n,grow][][][][]"));
+		panel.setLayout(new MigLayout("", "[grow 50][][pref!][90px:n][pref!][grow]", "[][][grow][][][100px:n,grow][][]"));
 		
 		JLabel lblProblema = new JLabel("Definizione Problema");
 		lblProblema.setFont(lblProblema.getFont().deriveFont(lblProblema.getFont().getStyle() | Font.BOLD));
-		panel.add(lblProblema, "cell 0 0 7 1,alignx center");
+		panel.add(lblProblema, "cell 0 0 6 1,alignx center");
 		
 		JLabel lblOffset = new JLabel("Offset:");
 		panel.add(lblOffset, "cell 1 1,alignx trailing");
@@ -95,7 +114,7 @@ public class RisolutorGui {
 		panel.add(lblCosto, "cell 3 1,alignx trailing");
 		
 		JLabel lblBarcodes = new JLabel("Barcodes:");
-		panel.add(lblBarcodes, "cell 6 1");
+		panel.add(lblBarcodes, "cell 5 1");
 		
 		JLabel lblOffsetPresamm = new JLabel("Presa (mm)");
 		panel.add(lblOffsetPresamm, "cell 1 2,alignx trailing");
@@ -112,7 +131,7 @@ public class RisolutorGui {
 		textCostoMat.setColumns(6);
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
-		panel.add(scrollPane_1, "cell 6 2 1 4,grow");
+		panel.add(scrollPane_1, "cell 5 2 1 4,grow");
 		
 		tblBarcodes = new JTable();
 		tblBarcodes.setModel(new DefaultTableModel(
@@ -155,7 +174,7 @@ public class RisolutorGui {
 		panel.add(textTaglio, "cell 2 3,growx");
 		textTaglio.setColumns(4);
 		
-		JLabel lblPiazzamento = new JLabel("Piazzamento");
+		JLabel lblPiazzamento = new JLabel("Cambio Verga");
 		panel.add(lblPiazzamento, "cell 3 3,alignx trailing");
 		
 		textCostoPiaz = new JTextField();
@@ -166,7 +185,7 @@ public class RisolutorGui {
 		panel.add(lblVerghe, "cell 0 4,alignx leading");
 		
 		JScrollPane scrollPane = new JScrollPane();
-		panel.add(scrollPane, "cell 0 5 6 1,grow");
+		panel.add(scrollPane, "cell 0 5 5 1,grow");
 		
 		tblVerghe = new JTable();
 		tblVerghe.setModel(new DefaultTableModel(
@@ -198,29 +217,70 @@ public class RisolutorGui {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		panel.add(btnClearVerghe, "cell 0 6 6 1,alignx center");
+		panel.add(btnClearVerghe, "cell 0 6 5 1,alignx center");
 		
 		JButton btnClearBarcodes = new JButton("Pulisci Barcodes");
-		panel.add(btnClearBarcodes, "cell 6 6,alignx center");
+		panel.add(btnClearBarcodes, "cell 5 6,alignx center");
+		
+		JPanel panel_2 = new JPanel();
+		panel.add(panel_2, "cell 0 7 6 1,grow");
+		panel_2.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		JButton btnRisolvi = new JButton("Risolvi");
+		panel_2.add(btnRisolvi);
+		
+		JButton btnTest = new JButton("Test");
+		btnTest.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				riempiDatiTest();
+			}
+		});
+		panel_2.add(btnTest);
 		btnRisolvi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				risolvi();
 			}
 		});
-		panel.add(btnRisolvi, "cell 0 8 7 1,alignx center");
+		splitPane.setRightComponent(tabbedPane);
 		
 		JPanel panel_1 = new JPanel();
-		splitPane.setRightComponent(panel_1);
-		panel_1.setLayout(new MigLayout("", "[grow]", "[][grow]"));
+		tabbedPane.addTab("Soluzioni", null, panel_1, null);
+		panel_1.setLayout(new MigLayout("", "[grow][pref!]", "[250][grow]"));
 		
-		JLabel lblSoluzioni = new JLabel("Soluzioni");
-		lblSoluzioni.setFont(new Font("Tahoma", Font.BOLD, 11));
-		panel_1.add(lblSoluzioni, "cell 0 0,alignx center");
+		JScrollPane scrollPane_3 = new JScrollPane();
+		panel_1.add(scrollPane_3, "cell 0 0 2 1,grow");
+		
+		tblSoluzioni = new JTable();
+		tblSoluzioni.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		scrollPane_3.setViewportView(tblSoluzioni);
+		
+		tblSoluzioni.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+	        public void valueChanged(ListSelectionEvent event) {
+	            // do some actions here, for example
+	            // print first column value from selected row
+	            caricaOutputSoluzione(tblSoluzioni.getSelectedRow());
+	        }
+	    });
+		
+		
+		JScrollPane scrollPane_4 = new JScrollPane();
+		panel_1.add(scrollPane_4, "cell 0 1,grow");
+		
+		tblProblema = new JTable();
+		tblProblema.setAutoscrolls(false);
+		tblProblema.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+		scrollPane_4.setViewportView(tblProblema);
+		
+		JScrollPane scrollPane_5 = new JScrollPane();
+		panel_1.add(scrollPane_5, "cell 1 1,grow");
+		
+		tblAccoppiamento = new JTable();
+		tblAccoppiamento.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		scrollPane_5.setViewportView(tblAccoppiamento);
 		
 		JScrollPane scrollPane_2 = new JScrollPane();
-		panel_1.add(scrollPane_2, "cell 0 1,grow");
+		tabbedPane.addTab("Log Soluzioni", null, scrollPane_2, null);
 		
 		textAreaSoluzioni = new JTextArea();
 		scrollPane_2.setViewportView(textAreaSoluzioni);
@@ -231,11 +291,17 @@ public class RisolutorGui {
 			ArrayList<Verga> verghe = getVerghe();
 			ArrayList<Barcode> barcodes = getBarcodes();
 			
+			tblAccoppiamento.setModel(new AccoppTableModel());
+			tblProblema.setModel(new ProblemaTableModel());
 			
-			
-			Risolutore r = new Risolutore(new Problema(barcodes,verghe), getOffsetPinza(), getOffsetTaglio(), getCostoMetro(), getPiazzamento());
+			r = new Risolutore(new Problema(barcodes,verghe), getOffsetPinza(), getOffsetTaglio(), getCostoMetro(), getPiazzamento());
 			r.risolvi();
-			textAreaSoluzioni.setText(r.stampaSoluzioni(10));
+			
+			fillOutput(10);
+
+			
+
+			//
 			
 			
 		} catch (Exception e) {
@@ -248,6 +314,61 @@ public class RisolutorGui {
 		
 		
 		
+	}
+
+	private void fillOutput(int numero) {
+		ArrayList<Soluzione> soluzioni = r.getSoluzioni();
+		long time = (r.getEndTime() - r.getStartTime())/1000;
+
+		
+		String soluzioneText="Tempo elaborazione, secondi:" + time + "\n\n";
+		
+		
+		int iSol=0;
+		for(Soluzione s : soluzioni){
+			if (iSol >= numero) break;
+			iSol++;
+			soluzioneText+="   SOLUZIONE " + iSol + " Sfrido: " + s.getSfrido()/1000 + " Mt (costo Metro "+ getCostoMetro() +") Piazzamenti: " + s.getCambiVerga() + " (costo cad: " + getPiazzamento() + ")";
+			System.out.println("   SOLUZIONE " + iSol + " Sfrido: " + s.getSfrido()/1000 + " Mt (costo Metro "+ getCostoMetro() +") Piazzamenti: " + s.getCambiVerga() + " (costo cad: " + getPiazzamento() + ")");
+			soluzioneText+=s;
+			System.out.println(s);
+		}
+		
+		System.out.println("secondi = "+time);
+		textAreaSoluzioni.setText(r.stampaSoluzioni(10));
+		
+		tblSoluzioni.setModel(new SoluzioneTableModel(soluzioni));
+		resizeColumnWidth(tblSoluzioni);
+
+		tblSoluzioni.getSelectionModel().setSelectionInterval(0, 0);
+		
+
+	}
+	
+	private void caricaOutputSoluzione(int selectedRow) {
+		if(selectedRow<0) return;
+		ArrayList<Soluzione> s = r.getSoluzioni();
+		tblAccoppiamento.setModel(new AccoppTableModel(s.get(selectedRow).getPassaggi()));
+		tblProblema.setModel(new ProblemaTableModel(s.get(selectedRow).getPassaggi()));
+		resizeColumnWidth(tblAccoppiamento);
+		resizeColumnWidth(tblProblema);
+		
+	}
+
+
+	public void resizeColumnWidth(JTable table) {
+	    final TableColumnModel columnModel = table.getColumnModel();
+	    for (int column = 0; column < table.getColumnCount(); column++) {
+	        int width = 50; // Min width
+	        for (int row = 0; row < table.getRowCount(); row++) {
+	            TableCellRenderer renderer = table.getCellRenderer(row, column);
+	            Component comp = table.prepareRenderer(renderer, row, column);
+	            width = Math.max(comp.getPreferredSize().width +5 , width);
+	        }
+	        if(width > 400)
+	            width=400;
+	        columnModel.getColumn(column).setPreferredWidth(width);
+	    }
 	}
 
 	private Float getPiazzamento() {
@@ -331,5 +452,61 @@ public class RisolutorGui {
 		  }
 		return barcodes;
 	}
+	
+	private void riempiDatiTest(){
+
+		tblVerghe.setModel(new DefaultTableModel(
+				new Object[][] {
+					{"v1",6000.0f,10000},
+					{"v2",5500.0f,10000},
+					{"v3",6800.0f,10000},
+					{"v4",6200.0f,10000},
+					{null, null, null},
+					{null, null, null},
+				},
+				new String[] {
+					"Nome", "Lunghezza (mm)", "Qta"
+				}
+			) {
+				Class[] columnTypes = new Class[] {
+					String.class, Float.class, Integer.class
+				};
+				public Class getColumnClass(int columnIndex) {
+					return columnTypes[columnIndex];
+				}
+			});
+		
+		tblBarcodes.setModel(new DefaultTableModel(
+				new Object[][] {
+					{"b1",1200.0f,10},
+					{"b2",1500.0f,15},
+					{"b3",1800.0f,22},
+					{"b4",2200.0f,30},
+					{null, null, null},
+					{null, null, null},
+					{null, null, null},
+					{null, null, null},
+					{null, null, null},
+					{null, null, null},
+					{null, null, null},
+					{null, null, null},
+					{null, null, null},
+					{null, null, null},
+					{null, null, null},
+				},
+				new String[] {
+					"Nome", "Qttb (mm)", "Qta"
+				}
+			) {
+				Class[] columnTypes = new Class[] {
+					String.class, Float.class, Integer.class
+				};
+				public Class getColumnClass(int columnIndex) {
+					return columnTypes[columnIndex];
+				}
+			});
+
+	}
+	
 
 }
